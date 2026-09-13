@@ -46,9 +46,10 @@ Each round leaves the project in a working, self-contained state.
 ```bash
 # clone
 git clone <repo-url>
-cd datapipe
+cd date-pipe
 
 # install (once the Laravel app is scaffolded)
+cd api
 composer install
 cp .env.example .env
 php artisan key:generate
