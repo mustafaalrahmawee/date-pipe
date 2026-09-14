@@ -7,9 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 class StoreImportRequest extends FormRequest
 {
     /**
-     * Authentication is enforced by the auth:sanctum route middleware.
-     * Any authenticated user may import until imports become owned
-     * records (round 2).
+     * Authentication is enforced by the auth:sanctum route middleware;
+     * ownership (user_id) is set server-side via the user relation in
+     * ImportController, never from request input.
      */
     public function authorize(): bool
     {
