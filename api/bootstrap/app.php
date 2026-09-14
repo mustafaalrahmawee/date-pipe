@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ImportUploadException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,5 +19,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+
+        // Expected client errors (wrong type, too large, invalid CSV) are
+        // not log-worthy, same as Laravel treats ValidationException.
+        $exceptions->dontReport(ImportUploadException::class);
+
+        $exceptions->render(
+            fn (ImportUploadException $e) => response()->json([
+                'message' => $e->getMessage(),
+            ], $e->status())
         );
     })->create();

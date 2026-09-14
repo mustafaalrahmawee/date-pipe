@@ -21,15 +21,10 @@ class StoreImportRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Laravel's max rule measures files in kilobytes; the config
-        // keeps bytes because the upload service compares bytes too.
-        $maxKb = intdiv((int) config('imports.max_upload_bytes'), 1024);
-
         return [
             'file' => [
                 'required',
                 'file',
-                'max:'.$maxKb,
                 'mimes:csv,txt',
             ],
         ];

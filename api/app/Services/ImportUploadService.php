@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\FileTooLargeException;
 use App\Exceptions\ImportUploadException;
 use App\Exceptions\InvalidCsvException;
 use App\Exceptions\InvalidFileTypeException;
@@ -32,6 +33,7 @@ class ImportUploadService
             throw new ImportUploadException('Uploaded file is not available on disk.');
         }
 
+        $this->assertSize($tempPath);
         $this->assertMimeType($tempPath);
         $header = $this->readHeader($tempPath);
 
@@ -43,6 +45,21 @@ class ImportUploadService
             sizeBytes: Storage::disk(self::DISK)->size($storedPath),
             header: $header,
         );
+    }
+
+    private function assertSize(string $tempPath): void
+    {
+        $size = filesize($tempPath);
+
+        if ($size === false) {
+            throw new ImportUploadException('Uploaded file size could not be determined.');
+        }
+
+        $maxBytes = (int) config('imports.max_upload_bytes');
+
+        if ($size > $maxBytes) {
+            throw new FileTooLargeException("File exceeds the maximum allowed size of {$maxBytes} bytes.");
+        }
     }
 
     private function assertMimeType(string $tempPath): void
