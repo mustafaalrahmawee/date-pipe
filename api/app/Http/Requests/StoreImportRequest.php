@@ -21,11 +21,12 @@ class StoreImportRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Content type and size are validated by ImportUploadService so
+        // invalid files map to 415/413 instead of validation errors.
         return [
             'file' => [
                 'required',
                 'file',
-                'mimes:csv,txt',
             ],
         ];
     }
