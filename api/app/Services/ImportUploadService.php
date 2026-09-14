@@ -77,33 +77,24 @@ class ImportUploadService
                 throw new InvalidCsvException('File contains no header row.');
             }
 
-            return $this->assertHeaderColumns($header);
+            // Blank lines make fgetcsv yield null elements, hence the cast.
+            $header = array_map(
+                static fn ($column) => trim((string) $column),
+                $header
+            );
+
+            if (in_array('', $header, true)) {
+                throw new InvalidCsvException('Header row contains an empty column name.');
+            }
+
+            if (count($header) !== count(array_unique($header))) {
+                throw new InvalidCsvException('Header row contains duplicate column names.');
+            }
+
+            return $header;
         } finally {
             fclose($stream);
         }
-    }
-
-    /**
-     * @param list<string|null> $columns
-     * @return list<string>
-     */
-    private function assertHeaderColumns(array $columns): array
-    {
-        // Blank lines make fgetcsv yield null elements, hence the cast.
-        $columns = array_map(
-            static fn ($column) => trim((string) $column),
-            $columns
-        );
-
-        if (in_array('', $columns, true)) {
-            throw new InvalidCsvException('Header row contains an empty column name.');
-        }
-
-        if (count($columns) !== count(array_unique($columns))) {
-            throw new InvalidCsvException('Header row contains duplicate column names.');
-        }
-
-        return $columns;
     }
 
     private function persist(UploadedFile $file): string
