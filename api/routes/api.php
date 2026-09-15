@@ -8,8 +8,13 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-Route::post('/imports', [ImportController::class, 'store'])
-    ->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/imports', [ImportController::class, 'index']);
+    Route::post('/imports', [ImportController::class, 'store']);
+    Route::post('/imports/{id}/process', [ImportController::class, 'process']);
+    Route::get('/imports/{id}/records', [ImportController::class, 'records']);
+    Route::get('/imports/{id}/report', [ImportController::class, 'report']);
+});
 
 Route::get('/user', function (Request $request) {
     return $request->user();
