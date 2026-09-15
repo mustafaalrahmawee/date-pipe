@@ -1,0 +1,5 @@
+# Large local test files for manual upload testing
+/test-files/
+
+# Local assistant tool state
+/.zcode/
