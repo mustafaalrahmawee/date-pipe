@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ImportProcessingException;
 use App\Exceptions\ImportUploadException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,6 +28,15 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(
             fn (ImportUploadException $e) => response()->json([
+                'message' => $e->getMessage(),
+            ], $e->status())
+        );
+
+        // Processing failures are server-side problems (stream or insert
+        // I/O), so unlike upload errors they stay reportable and map
+        // to 500.
+        $exceptions->render(
+            fn (ImportProcessingException $e) => response()->json([
                 'message' => $e->getMessage(),
             ], $e->status())
         );
