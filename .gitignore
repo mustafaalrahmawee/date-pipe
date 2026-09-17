@@ -3,3 +3,6 @@
 
 # Local assistant tool state
 /.zcode/
+
+# Windows NTFS metadata from WSL file copies
+*:Zone.Identifier
