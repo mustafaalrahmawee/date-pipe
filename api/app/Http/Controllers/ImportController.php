@@ -34,14 +34,14 @@ class ImportController extends Controller
         $imports = $request->user()
             ->imports()
             ->latest()
-            ->paginate($this->perPage($request));
+            ->paginate(max(1, min(100, $request->integer('per_page', 50))));
 
         return response()->json($imports);
     }
 
     public function process(Request $request, string $id, ImportProcessingService $service): JsonResponse
     {
-        $import = $this->findOwnedImport($request, $id);
+        $import = $request->user()->imports()->findOrFail($id);
 
         $result = $service->process($import);
 
@@ -53,38 +53,22 @@ class ImportController extends Controller
 
     public function records(Request $request, string $id): JsonResponse
     {
-        $import = $this->findOwnedImport($request, $id);
+        $import = $request->user()->imports()->findOrFail($id);
 
         $records = $import->records()
             ->orderBy('row_index')
-            ->paginate($this->perPage($request));
+            ->paginate(max(1, min(100, $request->integer('per_page', 50))));
 
         return response()->json($records);
     }
 
     public function report(Request $request, string $id, ImportReportService $service): JsonResponse
     {
-        $import = $this->findOwnedImport($request, $id);
+        $import = $request->user()->imports()->findOrFail($id);
 
         return response()->json([
             'data' => $service->report($import),
             'message' => 'Import report.',
         ]);
-    }
-
-    /**
-     * Resolves the import scoped to the authenticated user: imports of
-     * other users answer 404, so the endpoints do not leak that they
-     * exist. Route model binding is deliberately unused, it would
-     * fetch by id alone.
-     */
-    private function findOwnedImport(Request $request, string $id): Import
-    {
-        return $request->user()->imports()->findOrFail($id);
-    }
-
-    private function perPage(Request $request): int
-    {
-        return max(1, min(100, $request->integer('per_page', 50)));
     }
 }

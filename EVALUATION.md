@@ -274,6 +274,7 @@ Expected: every line `PASS`, final line `ALL TESTS PASSED`, exit code 0. The sui
 ## 15. Round 2 known limitations (deliberate or documented)
 
 - Single fixed header contract (`name,email,amount`) — by design (decision 1).
+- **Amount precision is only guaranteed for values within `decimal(12,6)` range (≤12 significant digits).** `validateRow` currently checks `is_numeric` only, and SQLite does not enforce the column's precision/scale (NUMERIC affinity → REAL), so an out-of-range amount such as `123456789.123456` is accepted and stored lossily — the exactness claim holds only for in-range values (all test fixtures qualify). Closing this is an input-validation task (a range/scale check in `validateRow`), independent of the streaming pipeline; deferred.
 - Partial imports carry no status/progress field — queue round (4) territory.
 - Report aggregation in PHP, not SQL — deliberate learning goal; production choice is `GROUP BY`.
 - Smoke-suite imports persist (no DELETE endpoint yet) — they accumulate harmlessly in dev.

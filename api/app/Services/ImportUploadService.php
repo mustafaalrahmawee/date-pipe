@@ -94,6 +94,13 @@ class ImportUploadService
                 throw new InvalidCsvException('File contains no header row.');
             }
 
+            // Excel and many Windows tools prefix UTF-8 CSVs with a byte
+            // order mark; it rides on the first column and would otherwise
+            // be stored as part of the header name.
+            if (isset($header[0])) {
+                $header[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $header[0]);
+            }
+
             // Blank lines make fgetcsv yield null elements, hence the cast.
             $header = array_map(
                 static fn ($column) => trim((string) $column),
