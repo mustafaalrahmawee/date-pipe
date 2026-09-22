@@ -6,3 +6,9 @@
 
 # Windows NTFS metadata from WSL file copies
 *:Zone.Identifier
+
+# Vue frontend (own repo candidate, built from node_modules)
+/app/
+
+# Personal learning notes
+/docs/
